@@ -2,7 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include "PGMImageProcessor.h"
-
+/**
+ * Loads input image
+ * @param filename : path of input file
+ */
 unsigned char**  PGMImageProcessor::loadImage(std::string filename){
     std::ifstream ifs(filename, std::ios::binary);
 
@@ -24,11 +27,22 @@ unsigned char**  PGMImageProcessor::loadImage(std::string filename){
         break;
     }
 
-    image = new unsigned char * [rows]; //allocate memory for outer array
+    unsigned char ** img = new unsigned char * [rows]; //allocate memory for outer array
     for(int i=0; i<rows; i++){
-        image[i] = new  unsigned char[cols]; //allocate memory for inner array
+        img[i] = new  unsigned char[cols]; //allocate memory for inner array
     }
-    ifs.read(reinterpret_cast<char*>(*(image)),cols*rows) >> std::ws;  
+    ifs.read(reinterpret_cast<char*>(*(img)),cols*rows) >> std::ws;  
     ifs.close(); 
-    
+    return img;
 }  
+
+void PGMImageProcessor::writeImage(std::string filename, unsigned char ** image){
+    std::ofstream ofs(filename, std::ios::binary | std::ios::out);
+    ofs << "P5"<< std::endl;
+    ofs << cols << " " << rows <<std::endl;
+    ofs << 255 <<std::endl;
+    ofs.write(reinterpret_cast<char*>(*(image)) , cols*rows);
+
+    ofs.close();
+
+}

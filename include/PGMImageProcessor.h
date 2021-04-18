@@ -10,6 +10,8 @@ class PGMImageProcessor{
     public: 
         PGMImageProcessor();
         unsigned char** loadImage(std::string filename);
+        void writeImage(std::string filename,unsigned char ** image);
+    
 };
 
 #endif
