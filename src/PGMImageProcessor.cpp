@@ -4,10 +4,22 @@
 #include "PGMImageProcessor.h"
 
 
-
+/**
+ * Standard constructor
+ * @param filename : name of image file to load
+ */
 PGMImageProcessor::PGMImageProcessor(std::string filename){
     image = loadImage(filename);
 }
+
+PGMImageProcessor::~PGMImageProcessor(){
+    for (int i=0; i< rows;++i){
+        delete image[i];
+    }
+    delete image;
+}
+
+
 /**
  * Loads input image
  * @param filename : path of input file
