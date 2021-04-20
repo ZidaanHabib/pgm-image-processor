@@ -8,7 +8,7 @@ class PGMImageProcessor{
         int rows, cols;
         unsigned char ** image;
     public: 
-        PGMImageProcessor();
+        PGMImageProcessor(std::string filename);
         unsigned char** loadImage(std::string filename);
         void writeImage(std::string filename,unsigned char ** image);
     

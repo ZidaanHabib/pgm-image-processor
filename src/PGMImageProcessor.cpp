@@ -2,6 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include "PGMImageProcessor.h"
+
+
+
+PGMImageProcessor::PGMImageProcessor(std::string filename){
+    image = loadImage(filename);
+}
 /**
  * Loads input image
  * @param filename : path of input file
@@ -36,6 +42,10 @@ unsigned char**  PGMImageProcessor::loadImage(std::string filename){
     return img;
 }  
 
+/**
+ * Writes image to PGM file
+ * @param filename : name of output file
+ */
 void PGMImageProcessor::writeImage(std::string filename, unsigned char ** image){
     std::ofstream ofs(filename, std::ios::binary | std::ios::out);
     ofs << "P5"<< std::endl;
