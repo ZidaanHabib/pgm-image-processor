@@ -11,6 +11,7 @@ class PGMImageProcessor{
         PGMImageProcessor(std::string filename);
         ~PGMImageProcessor();
         PGMImageProcessor(const PGMImageProcessor &p);
+        PGMImageProcessor& operator=(const PGMImageProcessor & rhs);
         unsigned char** loadImage(std::string filename);
         void writeImage(std::string filename,unsigned char ** image);
     

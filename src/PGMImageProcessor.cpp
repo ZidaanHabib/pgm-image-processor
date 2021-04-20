@@ -24,7 +24,7 @@ PGMImageProcessor::~PGMImageProcessor(){
 
 /**
  * Copy constructor
- * @param p : PGMImageProcessor object to copy
+ * @param p : Reference to PGMImageProcessor object to copy
  */
 PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows), cols(p.cols), image(nullptr) {
     if(p.image != nullptr){
@@ -35,6 +35,35 @@ PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows),
             }
         }
     }
+}
+
+/**
+ * Copy assignment operatore
+ * @param rhs : Reference to PGMImageProcessor object to copy
+ */
+PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImageProcessor & rhs){
+    if(this != &rhs){ // make sure not self-assignment
+        this-> rows = rhs.rows;
+        this-> cols = rhs.cols;
+
+        if(this->image != nullptr){ // check if object we are assigning already has an image variable pointing to a memory location
+            for (int i = 0; i< this->rows; ++i){
+                delete [] image[i];
+            }
+            delete [] image;
+        }
+        if(rhs.image != nullptr){
+            image = new unsigned char*[rhs.rows];
+            for (int i=0;i<rhs.rows; ++i){
+                for (int j = 0; j<rhs.cols; ++j){
+                    image[i][j] = rhs.image[i][j];
+                }
+            }
+        }
+
+    }
+    return *this;
+
 }
 
 
