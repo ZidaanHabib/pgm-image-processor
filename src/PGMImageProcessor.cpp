@@ -66,6 +66,10 @@ PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImag
 
 }
 
+PGMImageProcessor::PGMImageProcessor(PGMImageProcessor && p) : rows(p.rows), cols(p.cols), image(p.image) { //Does ownership of inner arrays need to be transferred explicitly?
+    p.image = nullptr;
+}
+
 
 /**
  * Loads input image
