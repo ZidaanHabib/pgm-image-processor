@@ -5,18 +5,36 @@
 
 
 /**
- * Standard constructor
+ * Custom constructor
  * @param filename : name of image file to load
  */
 PGMImageProcessor::PGMImageProcessor(std::string filename){
     image = loadImage(filename);
 }
 
+/**
+ * Destructor
+ */
 PGMImageProcessor::~PGMImageProcessor(){
     for (int i=0; i< rows;++i){
         delete image[i];
     }
     delete image;
+}
+
+/**
+ * Copy constructor
+ * @param p : PGMImageProcessor object to copy
+ */
+PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows), cols(p.cols), image(nullptr) {
+    if(p.image != nullptr){
+        image = new unsigned char*[p.rows];
+        for (int i=0;i<p.rows; ++i){
+            for (int j = 0; j<p.cols; ++j){
+                image[i][j] = p.image[i][j];
+            }
+        }
+    }
 }
 
 
