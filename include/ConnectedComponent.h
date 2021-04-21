@@ -11,6 +11,7 @@ class ConnectedComponent {
         std::vector<std::pair<int, int> > pixels;
 
         //Methods:
+        public:
         ConnectedComponent(); // default constructor    
         ~ConnectedComponent(); // destructor
         ConnectedComponent(const ConnectedComponent & c); // copy constructor
