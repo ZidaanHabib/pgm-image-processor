@@ -38,7 +38,7 @@ PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows),
 }
 
 /**
- * Copy assignment operatore
+ * Copy assignment operator
  * @param rhs : Reference to PGMImageProcessor object to copy
  */
 PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImageProcessor & rhs){
@@ -48,16 +48,16 @@ PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImag
 
         if(this->image != nullptr){ // check if object we are assigning already has an image variable pointing to a memory location
             for (int i = 0; i< this->rows; ++i){
-                delete [] image[i];
+                delete [] this->image[i];
             }
-            delete [] image;
+            delete [] this->image;
         }
         if(rhs.image != nullptr){
-            image = new unsigned char*[rhs.rows];
+            this->image = new unsigned char*[rhs.rows];
             for (int i=0;i<rhs.rows; ++i){
                 for (int j = 0; j<rhs.cols; ++j){
-                    image[i][j] = rhs.image[i][j];
-                }
+                    this->image[i][j] = rhs.image[i][j];
+                }   
             }
         }
 
@@ -65,9 +65,38 @@ PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImag
     return *this;
 
 }
-
+/**
+ * Move constructor
+ * @param p :  PGMImageProcessor object to copy
+ */
 PGMImageProcessor::PGMImageProcessor(PGMImageProcessor && p) : rows(p.rows), cols(p.cols), image(p.image) { //Does ownership of inner arrays need to be transferred explicitly?
     p.image = nullptr;
+}
+
+/**
+ * Move assignment operator
+ * @param rhs :  PGMImageProcessor object whose ownership to transfer
+ */
+PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(PGMImageProcessor && rhs)  {
+    if(this != &rhs){ // ensure not self-assignment
+        this->rows = rhs.rows;
+        this-> cols = rhs.cols;
+
+        if (this->image != nullptr){
+            for(int i = 0 ; i< this->rows; ++i){
+                delete [] this-> image[i];
+            }
+            delete [] this-> image;
+            this-> image = nullptr;
+        }
+
+        if(rhs.image != nullptr){
+            this->image = rhs.image;
+            rhs.image = nullptr;
+        }
+    }
+
+    return *this;
 }
 
 
