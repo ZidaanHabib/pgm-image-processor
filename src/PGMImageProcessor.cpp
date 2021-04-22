@@ -1,7 +1,11 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include "PGMImageProcessor.h"
+#include "ConnectedComponent.h"
+
+
 
 
 /**
@@ -28,7 +32,7 @@ PGMImageProcessor::~PGMImageProcessor(){
  */
 PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows), cols(p.cols), image(nullptr) {
     if(p.image != nullptr){
-        image = new unsigned char*[p.rows];
+        //image = new unsigned char*[p.rows]; iamge already exists and != nullptr so dont think we have to create it again
         for (int i=0;i<p.rows; ++i){
             for (int j = 0; j<p.cols; ++j){
                 image[i][j] = p.image[i][j];
@@ -41,7 +45,7 @@ PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows),
  * Copy assignment operator
  * @param rhs : Reference to PGMImageProcessor object to copy
  */
-PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(const PGMImageProcessor & rhs){
+PGMImageProcessor& PGMImageProcessor::operator=(const PGMImageProcessor & rhs){
     if(this != &rhs){ // make sure not self-assignment
         this-> rows = rhs.rows;
         this-> cols = rhs.cols;
@@ -77,22 +81,22 @@ PGMImageProcessor::PGMImageProcessor(PGMImageProcessor && p) : rows(p.rows), col
  * Move assignment operator
  * @param rhs :  PGMImageProcessor object whose ownership to transfer
  */
-PGMImageProcessor::PGMImageProcessor& PGMImageProcessor::operator=(PGMImageProcessor && rhs)  {
+PGMImageProcessor& PGMImageProcessor::operator=(PGMImageProcessor && rhs)  {
     if(this != &rhs){ // ensure not self-assignment
         this->rows = rhs.rows;
         this-> cols = rhs.cols;
 
         if (this->image != nullptr){
-            for(int i = 0 ; i< this->rows; ++i){
-                delete [] this-> image[i];
+            for(int i = 0 ; i < this->rows; ++i){
+                delete [] this-> image[i]; //delete current image inner arrays because it is being replaced
             }
-            delete [] this-> image;
+            delete [] this-> image; //delete current image outer array
             this-> image = nullptr;
         }
 
         if(rhs.image != nullptr){
-            this->image = rhs.image;
-            rhs.image = nullptr;
+            this->image = rhs.image; //transfer ownership of rhs's image to this
+            rhs.image = nullptr; 
         }
     }
 
@@ -148,3 +152,61 @@ void PGMImageProcessor::writeImage(std::string filename, unsigned char ** image)
     ofs.close();
 
 }
+
+int PGMImageProcessor::extractComponents(unsigned char threshold){
+    std::queue<std::pair<int, int > > q; // queue to hold untested neighbours
+    for (int i = 0; i < rows;++i){
+        for(int j = 0 ; j < cols; ++j){
+            if(image[i][j] >= threshold){
+                std::unique_ptr<ConnectedComponent> ptr(new ConnectedComponent(i, j)); // create pointer to new connecetd component
+                image[i][j] = 0; // set current pixel to 0 so not revisited
+                if(j < cols -1){// check that we are not on boundary of image
+                    if(image[i][j+1] >= threshold){ //  check right neighbour
+                        ptr->addPixel(i, j+1);
+                        image[i][j+1] = 0; //make sure not revisited
+                        addNeighboursToQueue(q,i, j+1);
+                    }
+                } 
+                if(i < rows -1){// check that we are not on boundary of image
+                    if(image[i+1][j] >= threshold){ //  check bottom neighbour
+                        ptr->addPixel(i+1, j);
+                        image[i+1][j] = 0; //make sure not revisited
+                        addNeighboursToQueue(q,i+1, j);
+                    }
+                }
+                //TODO: while loop to handle queue
+                while(!q.empty()){
+                    std::pair<int, int> coords  = q.front();
+                    q.pop();
+                    int x = coords.first;
+                    int y = coords.second;
+                    if(image[y][x] >= threshold){
+                     ptr->addPixel(y,x); // add pixel to connected component
+                     image[y][x] = 0; // make sure it won't be revisited
+                     addNeighboursToQueue(q,y,x); // add neighbors to q
+                    }
+                }   
+            }
+            
+        }
+    }
+}
+
+/**
+ * Auxillary method for extractComponent() to add left, right, and bottom neighbour to queue
+ * @param neighbours : queue of neighbour coordinates
+ * @param row : row number of current pixel
+ * @param col : col number of current pixel
+ */
+void PGMImageProcessor::addNeighboursToQueue(std::queue<std::pair<int, int> > &neighbours, int row, int col){
+    if (col != cols-1){ // check we're not at right side boundary
+        neighbours.push(std::make_pair(row,col+1)); //right neighbour
+    }
+    if (col != cols > 0){ // check we're not at left side boundary
+        neighbours.push(std::make_pair(row,col-1)); //left neighbour
+    }
+    if (row != rows-1 > 0){ // check we're not at bottom boundary
+        neighbours.push(std::make_pair(row+1,col)); //bottom neighbour
+    }
+}
+
