@@ -5,7 +5,7 @@
 #include "PGMImageProcessor.h"
 #include "ConnectedComponent.h"
 
-
+#define print(x) std::cout << x << std::endl;
 
 
 /**
@@ -13,17 +13,19 @@
  * @param filename : name of image file to load
  */
 PGMImageProcessor::PGMImageProcessor(std::string filename){
-    image = loadImage(filename);
+    //image = loadImage(filename);
+    loadImage(filename);
 }
 
 /**
  * Destructor
  */
 PGMImageProcessor::~PGMImageProcessor(){
-    for (int i=0; i< rows;++i){
-        delete image[i];
+    /*for (int i=0; i< rows;++i){ //TODO: FIX munmap chunk error
+        delete [] image[i];
     }
-    delete image;
+    delete [] image;*/
+    
 }
 
 /**
@@ -38,6 +40,9 @@ PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows),
                 image[i][j] = p.image[i][j];
             }
         }
+    }
+    else{
+        image = nullptr;
     }
 }
 
@@ -63,6 +68,9 @@ PGMImageProcessor& PGMImageProcessor::operator=(const PGMImageProcessor & rhs){
                     this->image[i][j] = rhs.image[i][j];
                 }   
             }
+        } 
+        else{
+            image = nullptr;
         }
 
     }
@@ -98,6 +106,9 @@ PGMImageProcessor& PGMImageProcessor::operator=(PGMImageProcessor && rhs)  {
             this->image = rhs.image; //transfer ownership of rhs's image to this
             rhs.image = nullptr; 
         }
+        else{
+            this->image = nullptr;
+        }
     }
 
     return *this;
@@ -108,7 +119,7 @@ PGMImageProcessor& PGMImageProcessor::operator=(PGMImageProcessor && rhs)  {
  * Loads input image
  * @param filename : path of input file
  */
-unsigned char**  PGMImageProcessor::loadImage(std::string filename){
+void PGMImageProcessor::loadImage(std::string filename){
     std::ifstream ifs(filename, std::ios::binary);
 
     while (ifs){ //while loop to get or discard header info
@@ -120,22 +131,25 @@ unsigned char**  PGMImageProcessor::loadImage(std::string filename){
             continue;
         }
         //now nrows and ncols are on this line
-        cols = std::stoi(line);
+        cols = std::stoi(line); // set member values
         line.erase(0,line.find(" "));
-        rows = std::stoi(line);
-        std::cout << "Loaded image of dimensions " << cols << " x "<< rows << std::endl;
+        rows = std::stoi(line); //set member value
         ifs >> std::ws; //consume whitespace
         std::getline(ifs, line); // 255 line
         break;
     }
 
-    unsigned char ** img = new unsigned char * [rows]; //allocate memory for outer array
+    //unsigned char ** img = new unsigned char * [rows]; //allocate memory for outer array
+    image = new unsigned char * [rows];
     for(int i=0; i<rows; i++){
-        img[i] = new  unsigned char[cols]; //allocate memory for inner array
+        //img[i] = new  unsigned char[cols]; //allocate memory for inner array
+        image[i] = new  unsigned char[cols];
     }
-    ifs.read(reinterpret_cast<char*>(*(img)),cols*rows) >> std::ws;  
+    //ifs.read(reinterpret_cast<char*>(*(img)),cols*rows) >> std::ws;  
+    ifs.read(reinterpret_cast<char*>(*(image)),cols*rows) >> std::ws;  
+    std::cout << "Loaded image of dimensions " << cols << " x "<< rows << std::endl;
     ifs.close(); 
-    return img;
+    //return img;
 }  
 
 /**
@@ -158,6 +172,7 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
     for (int i = 0; i < rows;++i){
         for(int j = 0 ; j < cols; ++j){
             if(image[i][j] >= threshold){
+                print("hi");
                 std::unique_ptr<ConnectedComponent> ptr(new ConnectedComponent(i, j)); // create pointer to new connecetd component
                 image[i][j] = 0; // set current pixel to 0 so not revisited
                 if(j < cols -1){// check that we are not on boundary of image
@@ -174,7 +189,7 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
                         addNeighboursToQueue(q,i+1, j);
                     }
                 }
-                //TODO: while loop to handle queue
+                //while loop to handle queue
                 while(!q.empty()){
                     std::pair<int, int> coords  = q.front();
                     q.pop();
@@ -185,11 +200,17 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
                      image[y][x] = 0; // make sure it won't be revisited
                      addNeighboursToQueue(q,y,x); // add neighbors to q
                     }
-                }   
+                }
+                components.push_front(std::move(ptr)); // issue here, review move assignment
+            } 
+            else{
+                continue;
             }
+            
             
         }
     }
+    return components.size();
 }
 
 /**
@@ -210,3 +231,27 @@ void PGMImageProcessor::addNeighboursToQueue(std::queue<std::pair<int, int> > &n
     }
 }
 
+unsigned char ** PGMImageProcessor::getImage(void){
+    return image;
+}
+
+bool PGMImageProcessor::writeComponents(const std::string &filename){
+    unsigned char ** img = new unsigned char*[rows]; // allocate mem for outer array
+    for (int i = 0; i < rows; ++i){ //intialise image of black pixels
+        img[i] = new unsigned char[cols];
+        for(int j = 0; j< cols; ++j){
+            img[i][j] = 0;
+        }
+    }
+    for(auto it = components.begin(); it != components.begin(); ++it ){
+        for( auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end(); ++pixel_it ){
+            int row = pixel_it->first;
+            int col = pixel_it-> second;
+            img[row][col] = 255;
+        }
+
+    }
+
+    writeImage(filename, img);
+    return true;
+}
