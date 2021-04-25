@@ -7,7 +7,6 @@
 
 #define print(x) std::cout << x << std::endl;
 
-
 /**
  * Custom constructor
  * @param filename : name of image file to load
@@ -165,7 +164,12 @@ void PGMImageProcessor::writeImage(std::string filename,  unsigned char ** img){
     ofs.close();
 }
 
-int PGMImageProcessor::extractComponents(unsigned char threshold){
+/**
+ * Finds and builds the connected components of the image loaded 
+ * @param threshold : min foreground pixel value
+ * @param minValidSize : minimum size in pixels for a connected component
+ */
+int PGMImageProcessor::extractComponents(unsigned char threshold, int minValidSize){
     std::queue<std::pair<int, int > > q; // queue to hold untested neighbours
     for (int i = 0; i < rows;++i){
         for(int j = 0 ; j < cols; ++j){
@@ -198,7 +202,8 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
                      addNeighboursToQueue(q,y,x); // add neighbors to q
                     }
                 }
-                components.push_front(std::move(ptr)); // issue here, review move assignment
+                if(ptr->numPixels >= minValidSize )
+                    components.push_front(std::move(ptr)); 
             } 
             else{
                 continue;
@@ -227,11 +232,20 @@ void PGMImageProcessor::addNeighboursToQueue(std::queue<std::pair<int, int> > &n
         neighbours.push(std::make_pair(row+1,col)); //bottom neighbour
     }
 }
-
+/**
+ * Get method to return image member
+ * @return image : image that is loaded in to instance
+ */
 unsigned char ** PGMImageProcessor::getImage(void){
     return image;
 }
 
+
+/**
+ * Write processed image to file
+ * @param filename : path of output file
+ * @return true for successful operation
+ */
 bool PGMImageProcessor::writeComponents(const std::string &filename){
     unsigned char ** img = new unsigned char*[rows]; // allocate mem for outer array
     for (int i = 0; i < rows; ++i){ //intialise image of black pixels

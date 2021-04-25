@@ -22,8 +22,7 @@ void writeImage(std::string filename,  unsigned char ** img, int rows, int cols)
 
 int main(int argc, char* argv[]){
     int i = 1;
-    int min = 3; //default min size
-    int max ;
+    int min, max;
     unsigned char threshold = 128;
     bool print = false;
     std::string input_filename,output_filename;
@@ -64,8 +63,9 @@ int main(int argc, char* argv[]){
     writeImage("test.pgm", img, 252,609); */
 
     PGMImageProcessor img_processor(input_filename); // create PGMImageProcessor object
+
     
-    int num = img_processor.extractComponents(threshold);
+    int numConnectedComponents = img_processor.extractComponents(threshold, min);
     bool success = img_processor.writeComponents(output_filename);
     
 
