@@ -276,3 +276,16 @@ bool PGMImageProcessor::writeComponents(const std::string &filename){
 
     return true;
 }
+
+int PGMImageProcessor::filterComponentsBySize(int minSize, int maxSize){
+    auto it = components.begin();
+    while (it != components.end()){
+        if ((**it).numPixels < minSize || (**it).numPixels > maxSize){
+            it = components.erase(it);
+        } 
+        else{
+            ++it;
+        }
+    }
+    return components.size();
+}

@@ -28,6 +28,7 @@ class PGMImageProcessor{
         int extractComponents(unsigned char threshold, int minValidSize);
         void addNeighboursToQueue(std::queue<std::pair<int, int> > &neighbours, int row, int col);
         unsigned char ** getImage(void);
+        int filterComponentsBySize(int minSize, int maxSize);
     
 };
 
