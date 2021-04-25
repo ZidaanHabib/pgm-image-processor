@@ -170,9 +170,6 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
     for (int i = 0; i < rows;++i){
         for(int j = 0 ; j < cols; ++j){
             if(image[i][j] >= threshold){
-                print("Row: "+ std::to_string(i));
-                print("Col: "+ std::to_string(j));
-                print((int)image[i][j]);
                 std::unique_ptr<ConnectedComponent> ptr(new ConnectedComponent(i, j)); // create pointer to new connecetd component
                 image[i][j] = 0; // set current pixel to 0 so not revisited
                 if(j < cols -1){// check that we are not on boundary of image
@@ -191,10 +188,10 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
                 }
                 //while loop to handle queue
                 while(!q.empty()){
-                    std::pair<int, int> coords  = q.front();
+                    std::pair<int, int> coords  = q.front();                    
                     q.pop();
-                    int x = coords.first;
-                    int y = coords.second;
+                    int y = coords.first;
+                    int x = coords.second;
                     if(image[y][x] >= threshold){
                      ptr->addPixel(y,x); // add pixel to connected component
                      image[y][x] = 0; // make sure it won't be revisited
