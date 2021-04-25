@@ -146,25 +146,27 @@ void PGMImageProcessor::loadImage(std::string filename){
         image[i] = new  unsigned char[cols];
     }
     //ifs.read(reinterpret_cast<char*>(*(img)),cols*rows) >> std::ws;  
-    ifs.read(reinterpret_cast<char*>(*(image)),cols*rows) >> std::ws;  
+    ifs.read(reinterpret_cast<char*>(*(image)),cols*rows);  
     std::cout << "Loaded image of dimensions " << cols << " x "<< rows << std::endl;
     ifs.close(); 
     //return img;
+    
 }  
 
 /**
  * Writes image to PGM file
  * @param filename : name of output file
  */
-void PGMImageProcessor::writeImage(std::string filename, unsigned char ** image){
+void writeImage(std::string filename,  unsigned char ** img, int rows, int cols){
     std::ofstream ofs(filename, std::ios::binary | std::ios::out);
-    ofs << "P5"<< std::endl;
-    ofs << cols << " " << rows <<std::endl;
-    ofs << 255 <<std::endl;
-    ofs.write(reinterpret_cast<char*>(*(image)) , cols*rows);
-
+    ofs << "P5"<< "\n";
+    ofs << cols << " " << rows <<"\n";
+    ofs << 255 <<"\n";
+    //ofs.write(reinterpret_cast<char*>(*(img)) , cols*rows);
+    for(int i = 0; i< rows; ++i){
+        ofs.write(reinterpret_cast<const char*>((img[i])) , cols);
+    }
     ofs.close();
-
 }
 
 int PGMImageProcessor::extractComponents(unsigned char threshold){
@@ -172,7 +174,9 @@ int PGMImageProcessor::extractComponents(unsigned char threshold){
     for (int i = 0; i < rows;++i){
         for(int j = 0 ; j < cols; ++j){
             if(image[i][j] >= threshold){
-                print("hi");
+                print("Row: "+ std::to_string(i));
+                print("Col: "+ std::to_string(j));
+                print((int)image[i][j]);
                 std::unique_ptr<ConnectedComponent> ptr(new ConnectedComponent(i, j)); // create pointer to new connecetd component
                 image[i][j] = 0; // set current pixel to 0 so not revisited
                 if(j < cols -1){// check that we are not on boundary of image
@@ -242,7 +246,7 @@ bool PGMImageProcessor::writeComponents(const std::string &filename){
         for(int j = 0; j< cols; ++j){
             img[i][j] = 0;
         }
-    }
+    }/*
     for(auto it = components.begin(); it != components.begin(); ++it ){
         for( auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end(); ++pixel_it ){
             int row = pixel_it->first;
@@ -250,8 +254,18 @@ bool PGMImageProcessor::writeComponents(const std::string &filename){
             img[row][col] = 255;
         }
 
-    }
+    } */
 
-    writeImage(filename, img);
+    //writeImage(filename, img);
+
+    for(int i = 0; i<rows; ++i){
+        delete [] img[i];
+    }
+    delete[] img;
+
+
+
+
+
     return true;
 }
