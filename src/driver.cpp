@@ -1,13 +1,17 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include 
+#include "PGMImageProcessor.h"
 
 #define print(x) std::cout << x << std::endl;
+#define OUTPUTDIR "output/"
 
 int main(int argc, char* argv[]){
-    int i = 0;
-    int min, max, threshold;
+    int i = 1;
+    int min = 3; //default min size
+    int max ;
+    unsigned char threshold = 128;
+    bool print = false;
     std::string input_filename,output_filename;
     while(i < argc-1){
         std::string arg = argv[i];
@@ -15,16 +19,24 @@ int main(int argc, char* argv[]){
             min = std::stoi(argv[i+1]);
             max = std::stoi(argv[i+2]);
         }
-        else if (argv[i] == "-t"){
+        else if (arg == "-t"){
             threshold = std::stoi(argv[i+1]);
+            
         } 
-        else if (argv[i] == "-p"){
-            print("Print");
+        else if (arg == "-p"){
+            print = true;
         }
-        else if (argv[i] == "-w"){
-            output_filename = argv[i+1];
-        }
-    }
+        else if (arg == "-w"){
 
-    input_filename = argv[argc-1];
+            output_filename = OUTPUTDIR;
+            output_filename += argv[i+1]; 
+        }
+        ++i;
+    }
+    input_filename = input_filename+  argv[argc-1];
+
+    PGMImageProcessor img_processor(input_filename); // create PGMImageProcessor object
+    
+    int num = img_processor.extractComponents(threshold);
+    return 0;
 }
