@@ -6,7 +6,7 @@
 #define print(x) std::cout << x << std::endl;
 #define OUTPUTDIR "output/"
 
-/* Used for testing */
+/* Used for testing: 
 void writeImage(std::string filename,  unsigned char ** img, int rows, int cols){
     std::ofstream ofs(filename, std::ios::binary | std::ios::out);
     ofs << "P5"<< "\n";
@@ -17,7 +17,7 @@ void writeImage(std::string filename,  unsigned char ** img, int rows, int cols)
         ofs.write(reinterpret_cast<const char*>((img[i])) , cols);
     }
     ofs.close();
-}
+} */
 
 
 int main(int argc, char* argv[]){
@@ -64,10 +64,9 @@ int main(int argc, char* argv[]){
     writeImage("test.pgm", img, 252,609); */
 
     PGMImageProcessor img_processor(input_filename); // create PGMImageProcessor object
-    img_processor.writeImage(output_filename,img_processor.getImage());
     
-    //int num = img_processor.extractComponents(threshold);
-    //bool success = img_processor.writeComponents(output_filename);
+    int num = img_processor.extractComponents(threshold);
+    bool success = img_processor.writeComponents(output_filename);
     
 
     return 0;
