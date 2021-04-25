@@ -22,7 +22,8 @@ void writeImage(std::string filename,  unsigned char ** img, int rows, int cols)
 
 int main(int argc, char* argv[]){
     int i = 1;
-    int min, max;
+    int min = 3;
+    int max;
     unsigned char threshold = 128;
     bool print = false;
     std::string input_filename,output_filename;
