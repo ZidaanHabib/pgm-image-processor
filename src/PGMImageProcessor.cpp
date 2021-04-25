@@ -157,12 +157,11 @@ void PGMImageProcessor::loadImage(std::string filename){
  * Writes image to PGM file
  * @param filename : name of output file
  */
-void writeImage(std::string filename,  unsigned char ** img, int rows, int cols){
+void PGMImageProcessor::writeImage(std::string filename,  unsigned char ** img){
     std::ofstream ofs(filename, std::ios::binary | std::ios::out);
     ofs << "P5"<< "\n";
     ofs << cols << " " << rows <<"\n";
-    ofs << 255 <<"\n";
-    //ofs.write(reinterpret_cast<char*>(*(img)) , cols*rows);
+    ofs << 255 <<"\n"; 
     for(int i = 0; i< rows; ++i){
         ofs.write(reinterpret_cast<const char*>((img[i])) , cols);
     }
@@ -246,17 +245,17 @@ bool PGMImageProcessor::writeComponents(const std::string &filename){
         for(int j = 0; j< cols; ++j){
             img[i][j] = 0;
         }
-    }/*
-    for(auto it = components.begin(); it != components.begin(); ++it ){
+    }
+    for(auto it = components.begin(); it != components.end(); ++it ){
         for( auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end(); ++pixel_it ){
             int row = pixel_it->first;
             int col = pixel_it-> second;
             img[row][col] = 255;
         }
 
-    } */
+    } 
 
-    //writeImage(filename, img);
+    writeImage(filename, img);
 
     for(int i = 0; i<rows; ++i){
         delete [] img[i];
