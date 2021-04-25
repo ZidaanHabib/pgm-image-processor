@@ -64,9 +64,10 @@ int main(int argc, char* argv[]){
     writeImage("test.pgm", img, 252,609); */
 
     PGMImageProcessor img_processor(input_filename); // create PGMImageProcessor object
+    img_processor.writeImage(output_filename,img_processor.getImage());
     
-    int num = img_processor.extractComponents(threshold);
-    bool success = img_processor.writeComponents(output_filename);
+    //int num = img_processor.extractComponents(threshold);
+    //bool success = img_processor.writeComponents(output_filename);
     
 
     return 0;

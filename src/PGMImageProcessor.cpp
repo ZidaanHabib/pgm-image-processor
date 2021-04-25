@@ -139,14 +139,11 @@ void PGMImageProcessor::loadImage(std::string filename){
         break;
     }
 
-    //unsigned char ** img = new unsigned char * [rows]; //allocate memory for outer array
     image = new unsigned char * [rows];
     for(int i=0; i<rows; i++){
-        //img[i] = new  unsigned char[cols]; //allocate memory for inner array
         image[i] = new  unsigned char[cols];
-    }
-    //ifs.read(reinterpret_cast<char*>(*(img)),cols*rows) >> std::ws;  
-    ifs.read(reinterpret_cast<char*>(*(image)),cols*rows);  
+        ifs.read(reinterpret_cast<char*>((image[i])),cols);
+    } 
     std::cout << "Loaded image of dimensions " << cols << " x "<< rows << std::endl;
     ifs.close(); 
     //return img;
