@@ -6,6 +6,8 @@
 #include <queue>
 #include <utility>
 #include "ConnectedComponent.h"
+#include <array>
+#include <tuple>
 
 class PGMImageProcessor{
 
@@ -14,6 +16,7 @@ class PGMImageProcessor{
             min = 3, max = rows*cols;
         unsigned char ** image;
         std::list<std::unique_ptr<ConnectedComponent> > components;
+        static unsigned char colours[5][3] ;
 
     public: 
         PGMImageProcessor(std::string filename); //Custom constructor
@@ -29,6 +32,7 @@ class PGMImageProcessor{
         void addNeighboursToQueue(std::queue<std::pair<int, int> > &neighbours, int row, int col);
         unsigned char ** getImage(void);
         int filterComponentsBySize(int minSize, int maxSize);
+        void writeColouredComponents(const std::string &filename);
     
 };
 

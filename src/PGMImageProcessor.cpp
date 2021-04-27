@@ -7,7 +7,15 @@
 
 #define print(x) std::cout << x << std::endl;
 
-/**
+unsigned char PGMImageProcessor::colours[5][3] = {
+    {255,0,0},//red
+    {0,255,0},//green
+    {0,0,255},//blue
+    {255,255,0},//yellow
+    {0,255,255} // magenta
+};
+
+    /**
  * Custom constructor
  * @param filename : name of image file to load
  */
@@ -20,10 +28,10 @@ PGMImageProcessor::PGMImageProcessor(std::string filename){
  * Destructor
  */
 PGMImageProcessor::~PGMImageProcessor(){
-    /*for (int i=0; i< rows;++i){ //TODO: FIX munmap chunk error
+    for (int i=0; i< rows;++i){ //TODO: FIX munmap chunk error
         delete [] image[i];
     }
-    delete [] image;*/
+    delete [] image;
     
 }
 
@@ -288,4 +296,51 @@ int PGMImageProcessor::filterComponentsBySize(int minSize, int maxSize){
         }
     }
     return components.size();
+}
+
+void PGMImageProcessor::writeColouredComponents(const std::string &filename){
+    unsigned char **img = new unsigned char*[rows*cols] ;// create output array
+
+    for (int i = 0; i< rows*cols; ++i){
+        img[i] = new unsigned char[3];
+        //set pixel to black
+        img[i][0] = 0;
+        img[i][1] = 0;
+        img[i][2] = 0;
+    }
+    
+    int i = 0 ;
+    for (auto it = components.begin(); it != components.end(); ++it){//iterate through components
+        unsigned char r = colours[i][0];
+        unsigned char g = colours[i][1];
+        unsigned char b = colours[i][2];
+        for(auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end();++pixel_it){
+            int y = pixel_it->first;
+            int x = pixel_it->second;
+            int k = y*cols + x; // determine equivalent pixel pos in linear array 
+            img[k][0] = r;
+            img[k][1] = g;
+            img[k][2] = b;
+        }
+        ++i;//change colour
+        if(i==5) 
+            i = 0; // cycle back to first colour
+
+    }
+
+    std::ofstream ofs(filename, std::ios::binary | std::ios::out);
+    ofs << "P6"<< "\n";
+    ofs << cols << " " << rows <<"\n";
+    ofs << 255 <<"\n"; 
+    for(int i =0; i< rows*cols; ++i){
+        ofs.write(reinterpret_cast<const char*>((img[i])) , 3);
+    }
+    ofs.close();
+
+    for(int i = 0; i < cols*rows; ++i){
+        delete [] img[i];
+    }
+
+    delete [] img;
+ 
 }
