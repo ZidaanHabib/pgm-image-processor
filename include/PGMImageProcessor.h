@@ -33,7 +33,8 @@ class PGMImageProcessor{
         unsigned char ** getImage(void);
         int filterComponentsBySize(int minSize, int maxSize);
         void writeColouredComponents(const std::string &filename);
-    
+        void extractBoundaryPixels(void);
+        void writeBoundaryPixels(const std::string &filename);
 };
 
 #endif  

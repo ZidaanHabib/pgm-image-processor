@@ -28,7 +28,7 @@ PGMImageProcessor::PGMImageProcessor(std::string filename){
  * Destructor
  */
 PGMImageProcessor::~PGMImageProcessor(){
-    for (int i=0; i< rows;++i){ //TODO: FIX munmap chunk error
+    for (int i=0; i< rows;++i){ 
         delete [] image[i];
     }
     delete [] image;
@@ -214,6 +214,7 @@ int PGMImageProcessor::extractComponents(unsigned char threshold, int minValidSi
                     components.push_front(std::move(ptr)); 
             } 
             else{
+                image[i][j] = 0;
                 continue;
             }
             
@@ -278,13 +279,15 @@ bool PGMImageProcessor::writeComponents(const std::string &filename){
     }
     delete[] img;
 
-
-
-
-
     return true;
 }
 
+/**
+ * Filter ConncectedComponents that fill size criteria
+ * @param minSize : minimum pixel size for connected component
+ * @param maxSize : maximum pixel size for connected component
+ * @return number of components that fulfil size criteria
+ */
 int PGMImageProcessor::filterComponentsBySize(int minSize, int maxSize){
     auto it = components.begin();
     while (it != components.end()){
@@ -298,6 +301,10 @@ int PGMImageProcessor::filterComponentsBySize(int minSize, int maxSize){
     return components.size();
 }
 
+/**
+ * Output file with colour coded connected components
+ * @param filename : path of output file
+ */
 void PGMImageProcessor::writeColouredComponents(const std::string &filename){
     unsigned char **img = new unsigned char*[rows*cols] ;// create output array
 
@@ -343,4 +350,90 @@ void PGMImageProcessor::writeColouredComponents(const std::string &filename){
 
     delete [] img;
  
+}
+void PGMImageProcessor::extractBoundaryPixels(void){
+    for(auto it = components.begin(); it != components.end(); ++it ){
+        for(auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end();++pixel_it){
+            bool isBoundary = false;
+            int y  = pixel_it->first;
+            int x  = pixel_it->second;
+            image[y][x] = 255;
+        }
+    }
+
+
+    for(auto it = components.begin(); it != components.end(); ++it ){
+        for(auto pixel_it = (**it).pixels.begin(); pixel_it != (**it).pixels.end();++pixel_it){
+            bool isBoundary = false;
+            int y  = pixel_it->first;
+            int x  = pixel_it->second;
+            if(y== 0){//top row
+                if(x == 0){//left most
+                    isBoundary = (image[y][x+1] == 0) || (image[y+1][x]== 0);
+                }
+                else if(x == cols-1){
+                    isBoundary = (image[y][x-1] == 0) || (image[y+1][x]== 0); 
+                }
+                else{
+                    isBoundary = (image[y][x-1] == 0) || (image[y][x+1]== 0) || (image[y+1][x]== 0);
+                }
+            }
+            else if(y==rows-1){//bottom row
+                if(x == 0){//left most
+                    isBoundary = (image[y][x+1] == 0) || (image[y-1][x]== 0);
+                }
+                else if(x == cols-1){ //right most
+                    isBoundary = (image[y][x-1] == 0) || (image[y-1][x]== 0);
+                }
+                else{
+                    isBoundary = (image[y][x-1] == 0) || (image[y][x+1]== 0) || (image[y-1][x] == 0);
+                }  
+            }
+            else{
+                
+                if(x==0){
+                    isBoundary = (image[y-1][x] == 0) || (image[y][x+1]== 0) || (image[y+1][x]== 0);
+                }
+                else if(x==cols-1){
+                    isBoundary = (image[y-1][x] == 0) || (image[y][x-1]== 0) || (image[y+1][x]== 0);
+                }
+                else{
+                    
+                    isBoundary = (image[y][x-1] == 0) || (image[y][x+1]== 0) || (image[y-1][x]== 0) || (image[y+1][x]== 0);
+                }
+                    
+            }
+
+            if(isBoundary){
+                (**it).addBoundaryPixel(y,x);
+            }
+
+        }
+    }
+}
+
+void PGMImageProcessor::writeBoundaryPixels(const std::string &filename){
+    unsigned char ** img = new unsigned char*[rows]; // allocate mem for outer array    
+    for (int i = 0; i < rows; ++i){ //intialise image of black pixels
+        img[i] = new unsigned char[cols];
+        for(int j = 0; j< cols; ++j){
+            img[i][j] = 0;
+        }
+    }
+    for(auto it = components.begin(); it != components.end(); ++it ){
+        for( auto bpixel_it = (**it).boundary_pixels.begin(); bpixel_it != (**it).boundary_pixels.end(); ++bpixel_it ){
+            int row = bpixel_it->first;
+            int col = bpixel_it-> second;
+            img[row][col] = 255;
+        }
+
+    } 
+
+    writeImage(filename, img);
+
+    for(int i = 0; i<rows; ++i){
+        delete [] img[i];
+    }
+    delete[] img;
+
 }
