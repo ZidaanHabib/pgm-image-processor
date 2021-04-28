@@ -2,6 +2,8 @@
 #include <string>
 #include "ConnectedComponent.h"
 #include <utility>
+#include <stdio.h>
+#define print(x) std::cout << x << std::endl;
 
 int ConnectedComponent::numComponents = 0; // intialise ConnectedComponent counter
 
@@ -11,6 +13,7 @@ ConnectedComponent::ConnectedComponent() : numPixels(0), num_boundary_pixels(0) 
 }
 ConnectedComponent::ConnectedComponent(int row, int col) : numPixels(1), num_boundary_pixels(0) {
     id = numComponents;
+    ++numComponents;
     pixels.push_back(std::make_pair(row, col));
 }
 
@@ -78,4 +81,10 @@ void ConnectedComponent::addPixel(int row, int col){
 void ConnectedComponent::addBoundaryPixel(int row, int col){
     boundary_pixels.push_back(std::make_pair(row, col));
     ++num_boundary_pixels;
+}
+
+void ConnectedComponent::printData(void){
+    printf("Connected Component %d:\n", id);
+    printf("    Number of pixels: %d\n", numPixels);
+    printf("    Number of component boundary pixels: %d\n", numPixels);
 }

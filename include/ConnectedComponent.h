@@ -22,6 +22,7 @@ class ConnectedComponent {
         ConnectedComponent& operator=(ConnectedComponent && rhs); // move assignment operator
         void addPixel(int x, int y);
         void addBoundaryPixel(int x, int y);
+        void printData();
     public:
         ~ConnectedComponent(); // destructor
         

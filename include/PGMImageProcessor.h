@@ -17,6 +17,7 @@ class PGMImageProcessor{
         unsigned char ** image;
         std::list<std::unique_ptr<ConnectedComponent> > components;
         static unsigned char colours[5][3] ;
+        int maxComponentSize, minComponentSize;
 
     public: 
         PGMImageProcessor(std::string filename); //Custom constructor
@@ -35,6 +36,7 @@ class PGMImageProcessor{
         void writeColouredComponents(const std::string &filename);
         void extractBoundaryPixels(void);
         void writeBoundaryPixels(const std::string &filename);
+        void printComponentInfo(void);
 };
 
 #endif  

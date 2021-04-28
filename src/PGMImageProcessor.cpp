@@ -4,6 +4,7 @@
 #include <memory>
 #include "PGMImageProcessor.h"
 #include "ConnectedComponent.h"
+#include <stdio.h>
 
 #define print(x) std::cout << x << std::endl;
 
@@ -179,6 +180,8 @@ void PGMImageProcessor::writeImage(std::string filename,  unsigned char ** img){
  */
 int PGMImageProcessor::extractComponents(unsigned char threshold, int minValidSize){
     std::queue<std::pair<int, int > > q; // queue to hold untested neighbours
+    maxComponentSize = 0;
+    minComponentSize = rows*cols;
     for (int i = 0; i < rows;++i){
         for(int j = 0 ; j < cols; ++j){
             if(image[i][j] >= threshold){
@@ -210,8 +213,16 @@ int PGMImageProcessor::extractComponents(unsigned char threshold, int minValidSi
                      addNeighboursToQueue(q,y,x); // add neighbors to q
                     }
                 }
-                if(ptr->numPixels >= minValidSize )
+                if(ptr->numPixels >= minValidSize ){
+                    if(ptr->numPixels > maxComponentSize)
+                        maxComponentSize = ptr->numPixels;
+                    if(ptr->numPixels < minComponentSize)
+                        minComponentSize = ptr->numPixels;
                     components.push_front(std::move(ptr)); 
+                    
+                    
+                }
+                
             } 
             else{
                 image[i][j] = 0;
@@ -436,4 +447,13 @@ void PGMImageProcessor::writeBoundaryPixels(const std::string &filename){
     }
     delete[] img;
 
+}
+
+void PGMImageProcessor::printComponentInfo(){
+    printf("Total number of connected components: %d\n", ConnectedComponent::numComponents);
+    printf("Max component size: %d\n", maxComponentSize);
+    printf("Min component size: %d\n", minComponentSize);
+    for(auto it = components.begin(); it != components.end(); ++it){
+        (**it).printData();
+    }
 }
