@@ -6,27 +6,14 @@
 #define print(x) std::cout << x << std::endl;
 #define OUTPUTDIR "output/"
 
-/* Used for testing: 
-void writeImage(std::string filename,  unsigned char ** img, int rows, int cols){
-    std::ofstream ofs(filename, std::ios::binary | std::ios::out);
-    ofs << "P5"<< "\n";
-    ofs << cols << " " << rows <<"\n";
-    ofs << 255 <<"\n";
-    //ofs.write(reinterpret_cast<char*>(*(img)) , cols*rows);
-    for(int i = 0; i< rows; ++i){
-        ofs.write(reinterpret_cast<const char*>((img[i])) , cols);
-    }
-    ofs.close();
-} */
-
 
 int main(int argc, char* argv[]){
     int i = 1;
     int min = 3;
     int max;
     unsigned char threshold = 128;
-    bool print = false;
-    std::string input_filename,output_filename;
+    bool print = false, colour = false, boundary = false, write = false;
+    std::string input_filename,output_filename, colour_output_file, boundary_output_file;
     while(i < argc-1){
         std::string arg = argv[i];
         if(arg == "-s"){
@@ -41,34 +28,44 @@ int main(int argc, char* argv[]){
             print = true;
         }
         else if (arg == "-w"){
-
             output_filename = OUTPUTDIR;
             output_filename += argv[i+1]; 
+            write = true;
+        }
+        else if(arg == "-c"){
+            colour_output_file = OUTPUTDIR;
+            colour_output_file+= argv[i+1];
+            colour = true;
+        }
+        else if(arg == "-b"){
+            boundary_output_file = OUTPUTDIR;
+            boundary_output_file+= argv[i+1];
+            boundary = true;
         }
         ++i;
     }
     input_filename = input_filename+  argv[argc-1];
-    /*
-    unsigned char ** img = new unsigned char*[252]; // allocate mem for outer array
-    for (int i = 0; i < 252; ++i){ //intialise image of black pixels
-        img[i] = new unsigned char[609];
-        for(int j = 0; j< 609; ++j){
-            img[i][j] = 0;
-        }
-    }
-    for (int i = 0; i < 252; ++i){ //intialise image of black pixels
-        for(int j = 0; j< 609; ++j){
-            if(img[i][j] != 0) print("wtf");
-        }
-    }
-    writeImage("test.pgm", img, 252,609); */
+
 
     PGMImageProcessor img_processor(input_filename); // create PGMImageProcessor object
 
-    
+    print("Processing...");
     int numConnectedComponents = img_processor.extractComponents(threshold, min);
-    bool success = img_processor.writeComponents(output_filename);
-    
+    img_processor.extractBoundaryPixels();
+    print("Connected components extracted.");
+   
+    if(write){
+        bool success = img_processor.writeComponents(output_filename);//write ppm file if user specified it
+    }
+    if(colour){
+        img_processor.writeColouredComponents(colour_output_file);//write ppm file if user specified it
+    }
+    if(boundary){
+        img_processor.writeBoundaryPixels(boundary_output_file);//write ppm file if user specified it
+    }
+    if(print){
+        img_processor.printComponentInfo();
+    }
 
     return 0;
 }
