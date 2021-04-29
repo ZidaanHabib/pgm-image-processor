@@ -15,7 +15,9 @@ unsigned char PGMImageProcessor::colours[5][3] = {
     {255,255,0},//yellow
     {0,255,255} // magenta
 };
+PGMImageProcessor::PGMImageProcessor(void):min(3), max(3), minComponentSize(3), maxComponentSize(3){
 
+}
     /**
  * Custom constructor
  * @param filename : name of image file to load
@@ -449,11 +451,18 @@ void PGMImageProcessor::writeBoundaryPixels(const std::string &filename){
 
 }
 
-void PGMImageProcessor::printComponentInfo(){
+void PGMImageProcessor::printComponentInfo(void){
     printf("Total number of connected components: %d\n", ConnectedComponent::numComponents);
     printf("Max component size: %d\n", maxComponentSize);
     printf("Min component size: %d\n", minComponentSize);
     for(auto it = components.begin(); it != components.end(); ++it){
         (**it).printData();
     }
+}
+
+int PGMImageProcessor::getRows(void){
+    return rows;
+}
+int PGMImageProcessor::getCols(void){
+    return cols;
 }

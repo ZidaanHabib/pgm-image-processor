@@ -20,6 +20,7 @@ class PGMImageProcessor{
         int maxComponentSize, minComponentSize;
 
     public: 
+        PGMImageProcessor(void) ;//deafult constructor
         PGMImageProcessor(std::string filename); //Custom constructor
         ~PGMImageProcessor(); // destructor
         PGMImageProcessor(const PGMImageProcessor &p); // copy constructor
@@ -37,6 +38,8 @@ class PGMImageProcessor{
         void extractBoundaryPixels(void);
         void writeBoundaryPixels(const std::string &filename);
         void printComponentInfo(void);
+        int getRows(void);
+        int getCols(void);
 };
 
 #endif  
