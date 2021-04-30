@@ -45,6 +45,10 @@ PGMImageProcessor::~PGMImageProcessor(){
 PGMImageProcessor::PGMImageProcessor(const PGMImageProcessor &p) : rows(p.rows), cols(p.cols), image(nullptr) {
     if(p.image != nullptr){
         //image = new unsigned char*[p.rows]; iamge already exists and != nullptr so dont think we have to create it again
+        image = new unsigned char * [rows];
+        for(int i=0; i<rows; i++){
+            image[i] = new  unsigned char[cols];
+        }
         for (int i=0;i<p.rows; ++i){
             for (int j = 0; j<p.cols; ++j){
                 image[i][j] = p.image[i][j];
@@ -137,7 +141,6 @@ void PGMImageProcessor::loadImage(std::string filename){
         ifs >> std::ws; //consume white space
         std::getline(ifs, line);
         if (line.substr(0,1) == "#" || line.substr(0,1) == "P"){
-            //std::cout << line << std::endl;
             continue;
         }
         //now nrows and ncols are on this line
