@@ -1,20 +1,28 @@
-# CSC3022F Assignment 3
+# PGM Image Processor
 ---
 
 Author: Zidaan Habib 
-Student num: hbbzid001
 
-## Instructions:
+
+## Instructions for running program:
 1. Make sure you are in the project root 
 2. type 'make clean' in terminal  to remove any potential object files/ binaries / output images
 3. type 'make' to compile program
 4. run the program using bin/driver <args> while in the project root. 
 
+## Instructions for running unit tests:
+Note that the unit tests are found in the tests/ directory. This directory has its own Makefile.
+1. Change to the tests/ directory.
+2. run 'make clean' if there is a .o file here
+3. run 'make' to compile the unit test executable 
+4. run 'make run'
+
 ## Note
-When images are generated, they are found in the /output directory. They are cleaned with 'make clean'. Only enter the output filenames (not file path)  when entering command line parameters as the program is designed to write images to the output/ directory. For example, bin/driver <some options> -w test.pgm. This will write the test.pgm file to the output. directory.
+After a 'make' command, object files are located in the obj/ dir and the executable is in the bin/ directory.The 'make clean' command will clean these folders. 
+When images are generated, they are found in the /output directory. They are cleaned with 'make clean'. Only enter the output filenames (not file path)  when entering command line parameters as the program is designed to write images to the output/ directory. For example, bin/driver [some options] -w test.pgm. This will write the test.pgm file to the output. directory.
 
 ## Mastery Work
-It should also be noted that the Colour Coded Components as well as Boundary Pixel functionality was added as per the mastery work description. The user can enter -b <output file name> as a command line parameter to extract and output the bouindary pixels of components. The user can use -c <output filename> to write the components to a file using colours. 
+It should also be noted that the Colour Coded Components as well as Boundary Pixel functionality was added. The user can enter -b [output file name] as a command line parameter to extract and output the boundary pixels of components. The user can use -c [output filename ] to write the components to a file using colours. 
 
 ## Files:
 driver.cpp:
